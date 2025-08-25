@@ -97,7 +97,9 @@ public class ClienteRestController {
         return ResponseEntity.ok(clienteService.buscarPorIdadeEntre(min, max));
     }
 
-    @Operation(summary = "Criar novo cliente")
+    @Operation(
+            summary = "Criar novo cliente",
+            description = "Criar novo cliente (Por favor, remover o id na hora de cadastrar o cliente.)")
     @PostMapping
     public ResponseEntity<Cliente> criar(@Valid @RequestBody Cliente cliente) {
         Cliente novo = clienteService.criar(cliente);
@@ -105,7 +107,10 @@ public class ClienteRestController {
         return ResponseEntity.created(location).body(novo);
     }
 
-    @Operation(summary = "Atualizar cliente existente")
+    @Operation(
+            summary = "Atualizar cliente existente",
+            description = "Atualizar cliente existente (Por favor, não atualizar o campo 'cep' diretamente, pois pode causar inconsistências.\n" +
+                    "Essa funcionalidade será finalizada em breve.)")
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> atualizar(
             @PathVariable Long id,
