@@ -1,5 +1,6 @@
 package com.dio.digitalInnovation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -25,10 +26,11 @@ public class Cliente {
     @Min(value = 0, message = "A idade deve ser maior ou igual a zero")
     private Integer idade;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "cep", nullable = false)
     @Valid
     @NotNull(message = "O endereço é obrigatório")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Endereco endereco;
 
     public Cliente() { }

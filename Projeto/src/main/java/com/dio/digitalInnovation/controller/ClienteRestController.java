@@ -3,10 +3,14 @@ package com.dio.digitalInnovation.controller;
 import com.dio.digitalInnovation.model.Cliente;
 import com.dio.digitalInnovation.services.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
@@ -29,9 +33,35 @@ public class ClienteRestController {
         return ResponseEntity.ok(clienteService.listarTodos());
     }
 
-    @Operation(summary = "Listar clientes com paginação")
+    @Operation(
+            summary = "Listar clientes com paginação",
+            description = "Retorna clientes paginados e ordenados por um campo válido",
+            parameters = {
+                    @Parameter(name = "page", description = "Número da página (0-index)", example = "0"),
+                    @Parameter(name = "size", description = "Quantidade de registros por página", example = "10"),
+                    @Parameter(name = "sort", description = "Campo e direção de ordenação", example = "id,asc")
+            }
+    )
     @GetMapping("/paginado")
-    public ResponseEntity<Page<Cliente>> listarPaginado(Pageable pageable) {
+    public ResponseEntity<Page<Cliente>> listarPaginado(
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable) {
+        // Lista de campos permitidos para ordenação
+        List<String> camposPermitidos = List.of("id", "nome", "idade");
+
+        // Validação do sort
+        pageable.getSort().forEach(order -> {
+            String campo = order.getProperty()
+                    .replace("[", "")
+                    .replace("]", "")
+                    .replace("\"", "");
+            if (!camposPermitidos.contains(campo)) {
+                throw new IllegalArgumentException("Campo de ordenação inválido: " + campo);
+            }
+        });
+
+        // Se passou na validação, executa a consulta
         return ResponseEntity.ok(clienteService.listarPaginado(pageable));
     }
 
